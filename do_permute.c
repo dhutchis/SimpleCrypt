@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 #define eprintf(...) fprintf (stderr, __VA_ARGS__)
 
 void * memcpy ( void * destination, const void * source, size_t num );
@@ -52,8 +53,8 @@ int cccomp(const void* a, const void* b) { return *(char*)a - *(char*)b; }
 // Note: upper and lower case are treated the same
 //       No special treatment of spaces
 void do_substitute(char* str) {
-  int i, j, len = strlen(str);
-  char uniqchars[len]; // contains the unique characters of str
+  int i, len = strlen(str);
+  //char uniqchars[len]; // contains the unique characters of str
   /*
   // first, copy str to uniquechars, sort uniqchars, and eliminate repeat chars, keep track of total length
   (void)memcpy(uniqchars, str, len);
@@ -111,12 +112,14 @@ void do_substitute(char* str) {
   }*/
 
 // free this
+// result is '\0'-terminated
 char* make_big_string(char** strarr, unsigned numstr) {
   unsigned i, j, outpos;
   unsigned len = 0;
   char* strout;
   for (i = 0; i < numstr; i++)
     len += strlen(strarr[i])+(i > 0 ? 1 : 0);
+  len++; // for '\0'
   strout = (char*)malloc(len*sizeof(char));
   for (i = j = outpos = 0; i < numstr; i++) {
     for (j = 0; j < strlen(strarr[i]); j++)
@@ -124,6 +127,8 @@ char* make_big_string(char** strarr, unsigned numstr) {
     if (i != numstr-1)
       strout[outpos++] = ' ';
   }
+  strout[outpos++] = '\0';
+  assert(outpos == len);
   return strout;
 }
 
