@@ -45,7 +45,7 @@ void do_permute(char* str)
   for (i = 0; i < len; i++)
     eprintf("%3d -> %3d: %c %c\n",i,map[i],str[i], astrcpy[i]);
   }
-  eprintf("LEN:%d\n",len);
+  eprintf("LENGTH: %d\n",len);
 }
 
 int cccomp(const void* a, const void* b) { return *(char*)a - *(char*)b; }
@@ -133,7 +133,7 @@ char* make_big_string(char** strarr, unsigned numstr) {
 }
 
 void print_usage_exit() {
-  printf("Usage: do_permute [-seed rand_seed] [-permute | -substitute] strings...\n");
+  printf("Arguments: [-seed rand_seed] [-permute | -substitute] strings...\n");
   exit(0);
 }
 
