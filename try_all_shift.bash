@@ -1,5 +1,5 @@
 
 for i in {0..25} 
 do 
-    ./rotation_decrypt.bin $i `cat inputfile`
+    ./crypt.bin -seed $i -shift `cat inputfile`
 done

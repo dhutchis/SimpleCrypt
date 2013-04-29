@@ -123,7 +123,7 @@ void do_shift(char* str, int num)
 	str[i] += 'z' - 'a' + 1;
       str[i] += num;
     }
-    else printf("%c occurred in do_shift and is not a letter.  Not shifting.\n",str[i]);
+    else eprintf("%c occurred in do_shift and is not a letter.  Not shifting.\n",str[i]);
   }
 }
 
@@ -194,17 +194,18 @@ int main(int argc, char** argv)
   }
   if (!op)
     print_usage_exit(progname);
-  if (!seed)
-    seed = time(0);
-  srand(seed);
   if (argc < 1)
     print_usage_exit(progname);
 
   big = make_big_string(argv, argc);
   if (op == (void (*)(char*))1)
-    do_shift(big, seed);
-  else
+    do_shift(big, seed);    	/* seed is the number to shift, not used to seed the random number gen */
+  else {
+    if (!seed)
+      seed = time(0);
+    srand(seed);
     (*op)(big);
+  }
 
   printf("%s",big);
   printf("\n");
