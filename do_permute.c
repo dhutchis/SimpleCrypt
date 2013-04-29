@@ -101,6 +101,33 @@ void do_substitute(char* str) {
 
 }
 
+// special case: do a Caesar shift permutation
+// shift num positions right
+// letters only
+void do_shift(char* str, int num)
+{
+  int i;
+
+  for (i = 0; str[i] != '\0'; i++) {
+    if (str[i] >= 'A' && str[i] <= 'Z') {
+      if (str[i] > 'Z' - num)
+	str[i] -= 'Z' - 'A' + 1;
+      else if (str[i] < 'A' - num)
+	str[i] += 'Z' - 'A' + 1;
+      str[i] += num;
+    }
+    else if (str[i] >= 'a' && str[i] <= 'z') {
+      if (str[i] > 'z' - num)
+	str[i] -= 'z' - 'a' + 1;
+      else if (str[i] < 'a' - num)
+	str[i] += 'z' - 'a' + 1;
+      str[i] += num;
+    }
+    else printf("%c occurred in do_shift and is not a letter.  Not shifting.\n",str[i]);
+  }
+}
+
+
 /*void do_permute_multi(char** strarr, int numstr)
 {
   int i;
@@ -132,15 +159,18 @@ char* make_big_string(char** strarr, unsigned numstr) {
   return strout;
 }
 
-void print_usage_exit() {
-  printf("Usage: do_permute [-seed rand_seed] [-permute | -substitute] strings...\n");
+void print_usage_exit(const char* progname) {
+  printf("Usage: %s [-seed rand_seed] [-permute | -substitute | -shift] strings...\n"
+	 "\tPermute changes character positions (diffusion)\n"
+	 "\tSubstitute changes character identities (confusion)\n"
+	 "\tShift is a special case of substitute (Caesar cipher). Shifts *seed* places.\n", progname);
   exit(0);
 }
 
 int main(int argc, char** argv)
 {
   int seed = 0;
-  char* big;
+  char *big, *progname = argv[0];
   void (*op)(char*); op = 0;
 
   argc--;
@@ -155,21 +185,26 @@ int main(int argc, char** argv)
       op = &do_permute;
     else if (strcmp(argv[0], "-substitute") == 0)
       op = &do_substitute;
+    else if (strcmp(argv[0], "-shift") == 0)
+      op = (void (*)(char*))1;	/* special marker for do_shift (different signature than op) */
     else
-      print_usage_exit();
+      print_usage_exit(progname);
     argc--;
     argv++;
   }
   if (!op)
-    print_usage_exit();
+    print_usage_exit(progname);
   if (!seed)
     seed = time(0);
   srand(seed);
   if (argc < 1)
-    print_usage_exit();
+    print_usage_exit(progname);
 
   big = make_big_string(argv, argc);
-  (*op)(big);
+  if (op == (void (*)(char*))1)
+    do_shift(big, seed);
+  else
+    (*op)(big);
 
   printf("%s",big);
   printf("\n");
