@@ -31,7 +31,8 @@ void rand_permute_map(void* map2, size_t size, int maplen) {
 void do_permute(char* str)
 {
   int i, len = strlen(str);
-  {  int map[len];
+  {  
+  int map[len];
   char astrcpy[len];
 
   for (i = 0; i < len; i++) // init perm map
@@ -45,7 +46,7 @@ void do_permute(char* str)
   for (i = 0; i < len; i++)
     eprintf("%3d -> %3d: %c %c\n",i,map[i],str[i], astrcpy[i]);
   }
-  eprintf("LENGTH: %d\n",len);
+  //eprintf("LENGTH: %d\n",len);
 }
 
 int cccomp(const void* a, const void* b) { return *(char*)a - *(char*)b; }
@@ -54,48 +55,21 @@ int cccomp(const void* a, const void* b) { return *(char*)a - *(char*)b; }
 //       No special treatment of spaces
 void do_substitute(char* str) {
   int i, len = strlen(str);
-  //char uniqchars[len]; // contains the unique characters of str
-  /*
-  // first, copy str to uniquechars, sort uniqchars, and eliminate repeat chars, keep track of total length
-  (void)memcpy(uniqchars, str, len);
-  qsort(uniqchars, len, sizeof(char), &cccomp);
-  int num_uniq = len;
-  for (i = 0, j = 1; j < len; ) {
-    while (uniqchars[i] == uniqchars[j]) {
-      j++;
-      num_uniq--;
-    }
-    uniqchars[++i] = uniqchars[j];
-    j++;
-  }*/
-
-  // map from uniqchars to mapto; start with trivial map same->same
-  //  char mapto[num_uniq];
   char mapto[26];
-  //  (void)memcpy(mapto,uniqchars,num_uniq);
+
   for (i = 0; i < 26; i++)
     mapto[i] = 'a'+i;
-  //for (i = 0; i < num_uniq; i++)
-    //    mapto[i] = uniqchars[i];
-  // permute the mappings
-  //  rand_permute_map(mapto, sizeof(char), num_uniq);
+
   rand_permute_map(mapto, sizeof(char), 26);
   // print the mappings
-  //  for (i = 0; i < num_uniq; i++)
-  //    eprintf("%3d: %c -> %c\n",i,uniqchars[i],mapto[i]);
   for (i = 0; i < 26; i++)
     eprintf("%3d: %c -> %c\n",i,'a'+i,mapto[i]);
+  
   // now do the substitution
   for (i = 0; i < len; i++) {
     if (!isalpha(str[i]))
       continue;
     char c = tolower(str[i]);
-    //    eprintf("search for %c\n",c);
-    //char* cp = bsearch(&str[i], uniqchars, num_uniq, sizeof(char), &cccomp);
-    //char* cp = bsearch(&c, mapto, 26, sizeof(char), &cccomp);
-    //eprintf("%d: str[i]:%c cp:%x cp-uniqchars:%x\n",i,str[i],cp,cp-mapto);
-    
-    //str[i] = mapto[ cp - mapto ];
     str[i] = mapto[c-'a'];
   }
 
@@ -123,20 +97,10 @@ void do_shift(char* str, int num)
 	str[i] += 'z' - 'a' + 1;
       str[i] += num;
     }
-    else eprintf("%c occurred in do_shift and is not a letter.  Not shifting.\n",str[i]);
+    else if (!isspace(str[i]))
+      eprintf("%c occurred in do_shift and is not a letter or space.  Not shifting.\n",str[i]);
   }
 }
-
-
-/*void do_permute_multi(char** strarr, int numstr)
-{
-  int i;
-  for (i = 0; i < numstr; i++) {
-    //    printf("%s ",strarr[i]);
-    do_permute(strarr[i]);
-  }
-  //printf("\n");
-  }*/
 
 // free this
 // result is '\0'-terminated
@@ -162,8 +126,8 @@ char* make_big_string(char** strarr, unsigned numstr) {
 void print_usage_exit(const char* progname) {
   printf("Usage: %s [-seed rand_seed] [-permute | -substitute | -shift] strings...\n"
 	 "\tPermute changes character positions (diffusion)\n"
-	 "\tSubstitute changes character identities (confusion)\n"
-	 "\tShift is a special case of substitute (Caesar cipher). Shifts *seed* places.\n", progname);
+	 "\tSubstitute changes LETTERS' identities (confusion)\n"
+	 "\tShift is a special case of substitute (Caesar cipher). Shifts LETTERS *seed* places.\n", progname);
   exit(0);
 }
 
